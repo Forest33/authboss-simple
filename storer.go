@@ -21,7 +21,6 @@ type Storer struct {
 
 var (
 	assertUser                 = &User{}
-	//assertStorer               = &Storer{}
 	_            authboss.User = assertUser
 )
 
