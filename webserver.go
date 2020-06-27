@@ -89,7 +89,10 @@ func (ws *WebServer) start(done chan bool) {
 
 	done <- true
 
-	http.ListenAndServe(fmt.Sprintf("%s:%d", ws.config.WebServerHost, ws.config.WebServerPort), router)
+	err := http.ListenAndServe(fmt.Sprintf("%s:%d", ws.config.WebServerHost, ws.config.WebServerPort), router)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func (ws *WebServer) dataInjector(handler http.Handler) http.Handler {

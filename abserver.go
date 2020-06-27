@@ -4,10 +4,7 @@ import (
 	"flag"
 	"os"
 	"os/signal"
-)
-
-var (
-	ws *WebServer
+	"syscall"
 )
 
 var (
@@ -29,9 +26,9 @@ func main() {
 		panic(err)
 	}
 
-	ws = StartWebServer(config)
+	StartWebServer(config)
 
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 }

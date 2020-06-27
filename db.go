@@ -52,7 +52,7 @@ func (db *Db) init() {
 	db.links = make(map[string]*sqlx.DB, 10)
 }
 
-func (db *Db) AddConnection(Name string, conn DbConnection) (err error) {
+func (db *Db) AddConnection(Name string, conn DbConnection) {
 	if conn.ConnectionMaxLifeTime == 0 {
 		conn.ConnectionMaxLifeTime = DEFAULT_CONNECTION_MAX_LIFE_TIME
 	}
@@ -63,7 +63,6 @@ func (db *Db) AddConnection(Name string, conn DbConnection) (err error) {
 		conn.MaxIdleConnections = DEFAULT_MAX_IDLE_CONNECTIONS
 	}
 	db.connections[Name] = conn
-	return nil
 }
 
 func (db *Db) Close() {
@@ -72,11 +71,10 @@ func (db *Db) Close() {
 	}
 }
 
-func (db *Db) Free() error {
+func (db *Db) Free() {
 	if db.Rows != nil {
-		return db.Rows.Close()
+		db.Rows.Close()
 	}
-	return nil
 }
 
 func (db *Db) Query(link_name string, query_sql string, params SQLParams) (err error) {
@@ -91,9 +89,9 @@ func (db *Db) Query(link_name string, query_sql string, params SQLParams) (err e
 			query_params[key] = value
 		}
 		db.Rows, err = link.NamedQuery(query_sql, query_params)
-		if strings.Index(query_sql, "RETURNING") != -1 {
+		if strings.Contains(query_sql, "RETURNING") {
 			if db.Rows != nil && db.Rows.Next() {
-				db.Rows.Scan(&db.LastInsertId)
+				return db.Rows.Scan(&db.LastInsertId)
 			} else {
 				return fmt.Errorf("Error getting last insert ID")
 			}
