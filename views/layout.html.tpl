@@ -46,12 +46,12 @@
 	<nav class="navbar navbar-default">
 		<div class="container-fluid">
 			<div class="navbar-header">
-				<a class="navbar-brand" href="/">abserver{{if .loggedin}} - {{.current_user_name}}{{end}}</a>
+				<a class="navbar-brand" href="/">abserver{{if .logged}} - {{.current_user_name}}{{end}}</a>
 			</div>
 
 			<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 				<ul class="nav navbar-nav navbar-right">
-					{{if .loggedin}}
+					{{if .logged}}
 					<li><a href="/foo">Foo</a></li>
 					<li><a href="/bar">Bar</a></li>
 					{{if .admin_role}}

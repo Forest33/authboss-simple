@@ -18,10 +18,10 @@ type Config struct {
 	WebServerHost string `json:"webserver_host"`
 	WebServerPort int    `json:"webserver_port"`
 
-	SessionCookieName string `json:"sessionCookieName"`
-	SessionMaxAge     int    `json:"sessionMaxAge"`
-	SessionStoreKey   string `json:"sessionStoreKey"`
-	CookieStoreKey    string `json:"cookieStoreKey"`
+	SessionCookieName string `json:"session_cookie_name"`
+	SessionMaxAge     int    `json:"session_max_age"`
+	SessionStoreKey   string `json:"session_store_key"`
+	CookieStoreKey    string `json:"cookie_store_key"`
 }
 
 func NewConfig(config_path string) (*Config, error) {

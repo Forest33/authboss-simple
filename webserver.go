@@ -10,21 +10,26 @@ import (
 	"github.com/volatiletech/authboss"
 	abclientstate "github.com/volatiletech/authboss-clientstate"
 	abrenderer "github.com/volatiletech/authboss-renderer"
+	_ "github.com/volatiletech/authboss/auth"
 	"github.com/volatiletech/authboss/defaults"
+	_ "github.com/volatiletech/authboss/logout"
 	"github.com/volatiletech/authboss/remember"
 	"net/http"
 	"time"
 )
 
 type WebServer struct {
-	config *Config
-	ab *authboss.Authboss
+	config       *Config
+	ab           *authboss.Authboss
+	sessionStore abclientstate.SessionStorer
+	cookieStore  abclientstate.CookieStorer
+	templates    tpl.Templates
 }
 
 func StartWebServer(config *Config) *WebServer {
 	ws := &WebServer{
 		config: config,
-		ab: authboss.New(),
+		ab:     authboss.New(),
 	}
 	done := make(chan bool)
 	go func() {
@@ -42,9 +47,9 @@ func (ws *WebServer) initAuthboss() {
 	ws.ab.Config.Core.ViewRenderer = abrenderer.NewHTML("/login", "views")
 	ws.ab.Config.Core.MailRenderer = abrenderer.NewEmail("/", "")
 
-	ws.ab.Config.Storage.Server = storer
-	ws.ab.Config.Storage.SessionState = sessionStore
-	ws.ab.Config.Storage.CookieState = cookieStore
+	ws.ab.Config.Storage.Server = NewStorer(ws.config)
+	ws.ab.Config.Storage.SessionState = ws.sessionStore
+	ws.ab.Config.Storage.CookieState = ws.cookieStore
 
 	defaults.SetCore(&ws.ab.Config, false, true)
 
@@ -59,14 +64,14 @@ func (ws *WebServer) initAuthboss() {
 }
 
 func (ws *WebServer) start(done chan bool) {
-	templates = tpl.Must(tpl.Load("views", "", "layout.html.tpl", nil))
+	ws.templates = tpl.Must(tpl.Load("views", "", "layout.html.tpl", nil))
 
-	cookieStore = abclientstate.NewCookieStorer([]byte(ws.config.CookieStoreKey), nil)
-	cookieStore.HTTPOnly = false
-	cookieStore.Secure = false
+	ws.cookieStore = abclientstate.NewCookieStorer([]byte(ws.config.CookieStoreKey), nil)
+	ws.cookieStore.HTTPOnly = false
+	ws.cookieStore.Secure = false
 
-	sessionStore = abclientstate.NewSessionStorer(ws.config.SessionCookieName, []byte(ws.config.SessionStoreKey), nil)
-	cstore := sessionStore.Store.(*sessions.CookieStore)
+	ws.sessionStore = abclientstate.NewSessionStorer(ws.config.SessionCookieName, []byte(ws.config.SessionStoreKey), nil)
+	cstore := ws.sessionStore.Store.(*sessions.CookieStore)
 	cstore.Options.HttpOnly = false
 	cstore.Options.Secure = false
 	cstore.MaxAge(int((time.Duration(ws.config.SessionMaxAge) * 24 * time.Hour) / time.Second))
@@ -105,7 +110,7 @@ func (ws *WebServer) layoutData(w http.ResponseWriter, r **http.Request) authbos
 	}
 
 	return authboss.HTMLData{
-		"loggedin":          userInter != nil,
+		"logged":            userInter != nil,
 		"current_user_name": currentUserName,
 		"csrf_token":        nosurf.Token(*r),
 		"admin_role":        userRole == ROLE_ADMIN,
@@ -140,7 +145,7 @@ func (ws *WebServer) renderPage(w http.ResponseWriter, r *http.Request, name str
 	current.MergeKV("csrf_token", nosurf.Token(r))
 	current.Merge(data)
 
-	err := templates.Render(w, name, current)
+	err := ws.templates.Render(w, name, current)
 	if err == nil {
 		return
 	}

@@ -11,8 +11,8 @@
   "webserver_host": "0.0.0.0",
   "webserver_port": 8080,
 
-  "sessionCookieName": "abserver",
-  "sessionMaxAge": 30,
-  "cookieStoreKey": "91fc4fa512342bd8ec59140fd88561a75a788ede85c1a3671d0e8f97ae455d7b55a506099b0544e1b1febfdb5a7a7b8e3cdbdd52339c53008c30aa7cc07b6017",
-  "sessionStoreKey": "54a45943af1598f3b149a1f4a42880ff191871b0ee2978eca5867bb3df2a97c8f2efdd4a5b48b1fe4008d79b54df42ec17835a75a8391a11bbb073c7787d2904"
+  "session_cookie_name": "abserver",
+  "session_max_age": 30,
+  "cookie_store_key": "91fc4fa512342bd8ec59140fd88561a75a788ede85c1a3671d0e8f97ae455d7b55a506099b0544e1b1febfdb5a7a7b8e3cdbdd52339c53008c30aa7cc07b6017",
+  "session_store_key": "54a45943af1598f3b149a1f4a42880ff191871b0ee2978eca5867bb3df2a97c8f2efdd4a5b48b1fe4008d79b54df42ec17835a75a8391a11bbb073c7787d2904"
 }
