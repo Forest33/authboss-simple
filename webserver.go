@@ -104,19 +104,19 @@ func (ws *WebServer) dataInjector(handler http.Handler) http.Handler {
 }
 
 func (ws *WebServer) layoutData(w http.ResponseWriter, r **http.Request) authboss.HTMLData {
-	currentUserName := ""
-	userRole := ROLE_USER
+	userName := ""
+	userRole := RoleUser
 	userInter, err := ws.ab.LoadCurrentUser(r)
 	if userInter != nil && err == nil {
-		currentUserName = userInter.(*User).Name
+		userName = userInter.(*User).Name
 		userRole = userInter.(*User).Role
 	}
 
 	return authboss.HTMLData{
 		"logged":            userInter != nil,
-		"current_user_name": currentUserName,
+		"current_user_name": userName,
 		"csrf_token":        nosurf.Token(*r),
-		"admin_role":        userRole == ROLE_ADMIN,
+		"admin_role":        userRole == RoleAdmin,
 	}
 }
 

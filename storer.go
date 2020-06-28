@@ -20,31 +20,22 @@ type Storer struct {
 }
 
 var (
-	assertUser                 = &User{}
-	_            authboss.User = assertUser
+	assertUser                       = &User{}
+	_          authboss.User         = assertUser
+	_          authboss.AuthableUser = assertUser
 )
 
-// PutPID into user
 func (u *User) PutPID(pid string) {}
 
-// PutPassword into user
-func (u *User) PutPassword(password string) { u.Password = password }
+func (u *User) PutPassword(password string) { }
 
-// PutEmail into user
-func (u *User) PutEmail(email string) {}
-
-// GetPID from user
 func (u User) GetPID() string { return u.Name }
 
-// GetPassword from user
 func (u User) GetPassword() string { return u.Password }
-
-// GetEmail from user
-func (u User) GetEmail() string { return "" }
 
 func NewStorer(config *Config) *Storer {
 	db := NewDB()
-	db.AddConnection(ABSERVER_DB_NAME, DbConnection{
+	db.AddConnection(AbserverDbName, DbConnection{
 		Host:                  config.DbHost,
 		Port:                  config.DbPort,
 		User:                  config.DbUser,
@@ -73,20 +64,22 @@ func (s *Storer) Load(_ context.Context, key string) (user authboss.User, err er
 	}
 
 	sql := "SELECT id, name, password, role FROM users WHERE name = :name"
-	err = s.db.Query(ABSERVER_DB_NAME, sql, SQLParams{"name": key})
+	err = s.db.Query(AbserverDbName, sql, SQLParams{"name": key})
 	if err != nil {
 		return nil, fmt.Errorf("Internal error")
 	}
 	defer s.db.Free()
 
-	user = &User{}
 	if s.db.Rows.Next() {
+		user = &User{}
 		err = s.db.Rows.StructScan(user)
 		if err == nil {
 			s.users[key] = user
+			return user, nil
 		}
 	}
-	return user, err
+
+	return nil, authboss.ErrUserNotFound
 }
 
 func (s *Storer) New(_ context.Context) authboss.User {

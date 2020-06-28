@@ -12,9 +12,9 @@ var (
 )
 
 const (
-	ABSERVER_DB_NAME = "abserver"
-	ROLE_ADMIN       = 1
-	ROLE_USER        = 2
+	AbserverDbName = "abserver"
+	RoleAdmin      = 1
+	RoleUser       = 2
 )
 
 func main() {

@@ -29,7 +29,7 @@ func (ws *WebServer) auth(next http.Handler) http.Handler {
 		} else {
 			userInter, err := ws.ab.LoadCurrentUser(&r)
 			if userInter != nil && err == nil {
-				if userInter.(*User).Role == ROLE_ADMIN {
+				if userInter.(*User).Role == RoleAdmin {
 					next.ServeHTTP(w, r)
 				} else {
 					if r.URL.Path == "/foo" || r.URL.Path == "/bar" {
